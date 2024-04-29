@@ -1,0 +1,204 @@
+---
+title: "CLUSTERING PRACTICA"
+output:
+  pdf_document: default
+  html_document: default
+date: "2024-04-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Captura de datos 
+
+```{r}
+library(readr)
+consumo_electrico <- read_csv("C:/Users/glady/Downloads/consumo_electrico.csv")
+```
+## Como traer parte de la tabla 
+
+```{r}
+consumo_electrico[c(1:10,30:35),]
+
+```
+## histograma de una Columna del dataset 
+
+```{r}
+hist(consumo_electrico$bebidas)
+
+```
+# Histograma de 4 Colunnas a la vez, sirve para comparar 
+```{r}
+par(mfrow=c(2,2))
+hist(consumo_electrico$tabaco)
+hist(consumo_electrico$bebidas)
+hist(consumo_electrico$minerales_no_metalicos)
+hist(consumo_electrico$resto_de_alimentos)
+```
+## Gráficos de Densidad
+
+Algunas personas prefieren utilizar la envolvente del histograma que es el gráfico de densidad
+
+```{r}
+par(mfrow=c(2,2))
+plot(density(consumo_electrico$tabaco))
+plot(density(consumo_electrico$bebidas))
+plot(density(consumo_electrico$minerales_no_metalicos))
+plot(density(consumo_electrico$resto_de_alimentos))
+```
+
+
+
+## Gráficas Ralas y Análisis Multivariado
+
+```{r}
+library(car)
+consumoE_Rawdata <- consumo_electrico[ ,c(2,3,4,5)]
+consumoE_Rawdata
+scatterplotMatrix(consumoE_Rawdata)
+
+```
+## Mínimo numero de dimensiones
+
+Cuándo nos enfrentamos a situaciones como esta, suele ocurrir que al definir los indicadores nos encontramos con el dilema del gran volumen de datos. Esto no es un problema que provenga tan solo del número de casos que estudiamos con el objeto de conocer el recorrido de una variable, sino más bien por la gran cantidad de variables o calificadores con los que los definimos o estudiamos.
+Ya vimos en el caso anterior como dimensiones o variables que tienen distinto nombre no son en realidad más que la misma cosa. 
+En el ejemplo anterior la pregunta era si podríamos prescindir de una variable. En este ejercicio trataremos de ver cuantas podemos eliminar. La consigna es Mientras menos variables mejor, y la restricción que impondremos será la de perder variables siempre que podamos seguir describiendo con alto nivel de confianza el comportamiento de todos los casos. Otra mirada sobre el problema podría enunciarse así. “Como puedo saber que valores o recorrido le impondría a la mínima cantidad de variables para calificar como candidato interesante en la nómina de contratistas de las grandes empresas constructoras”.
+
+
+Para auxilio en este problema utilizaremos el Método de Análisis de Componentes Principales. En este caso y al igual que en el caso anterior usaré un subconjunto de datos (sólo los numéricos) y en especial la matriz de correlación. Esta matriz está armada con las pendientes de las aproximaciones lineales de las rectas del gráfico de densidades. 
+
+Las técnicas que usaremos pretenden desde sus diferentes enfoques abrodar el problema de simplificar la interpretación del comportamiento individual y colectivo de los casos (empresas  constructoras y contratista) y como podemos valernos del proceso de ingeniería inversa para mover los controles de nuestra “nave” en el tablero de comando con el que fijaremos la altura de la vara del tablero de control.
+
+## Análisis de Componentes Principales
+
+Crearemos un objeto nuevo que se llamará PC1 (por Principal Component 1) y la instrucción con el que crearemos la matriz de correlaciones es princomp. 
+
+```{r}
+PC1 <- princomp(consumoE_Rawdata)
+PC1
+plot(PC1)
+```
+
+
+
+
+
+En el ploteo podemos ver que uno de los componentes principales aporta casi el 4 veces más de la información referida al comportamiento de la varianza de todos los casos. Este componente es el que más incluye en la clasificación o posible identificación del comportamiento de cada individuo de la muestra.   
+
+<<sumario_pc1,echo=TRUE>>=
+
+```{r}
+summary(PC1)
+```
+
+
+
+
+
+Si observamos bien el reporte que nos entrega el comando summary nos podemos dar cuenta que con los dos primeros componentes podríamos explicar 97.768521% del comportamiento de las muestras de la población. En nuestro caso del total de empresas contratistas analizadas.
+
+¿Qué pasaría si representamos a las empresas en un gŕafico en el que las variables de los ejes sean los dos componentes principales? , pues tendríamos un primer indicio de la bondad de las dimensiones o variables para agrupar a las muestras
+Esto lo podemos realizar con el comando bilot
+
+```{r}
+biplot(PC1)
+```
+
+
+Los ńumeros que aparecen el el diagrama son el caso de estudio (renglón en que se encuentra la empresa contratista).
+A simple vista observamos que hay como tres tipos distintos empresas (tres nubes claramente diferenciadas). Aquí nos queda claro que el principal componente que ordena o divide a estas colonias es indistintamente el CAPITAL o el EQUIPAMIENTO con que cuentas. 
+
+También podemos ver que hay empresas como la 15, 16, 132, 118, 61, 107 sobre las que el gráfico nos recomienda estudiarlas más pues no es capaz de clasificarlas bien (son casos extremos o anómalos). Tal vez con poco capital o sin equipo pueden llegar a ser competitivas o interesantes para las grandes constructoras.
+
+Por último la dimensión referida a la cetificación de NORMAS es la dimensión que menos valor aporta. Esto no implica que no certificar sea poco importante, sino que probablemente sea una pregunta irrelevante si todos contestaron que SI certificaron ISO 9000.
+
+# Scores
+
+Si el comportamiento del componente va hacia el lado positivo, se debe interpretar como que a mayor desempeño mejor resultado o calificación. Si algún componente apunta para el lado negativo  tendremos que pensar que a mayor calificación en esa dimensión pero sería el desempeño.
+La variable PC1 que usamos tiene mucha información valiosa.
+Revise todo el contenido, voy a mostrar una dimensión que es el score que indica como se comportarían todos los individuos si sólo los analizásemos con los componentes 1 y 2.
+
+```{r}
+acp1 <- PC1$scores
+acp1 [1:10 , ]
+```
+
+
+
+Voy a realizar el mismo score pero ahora solo con los componentes 1 y 2
+
+```{r}
+acp2 <-PC1$scores[ ,1:2]
+plot(acp2)
+```
+
+
+
+
+Aquí ya podemos ver más claramente la división que se produce entre distintos clusters. Para poder diferencias aún más recurriremos a un nuevo tipo de análisis diferenciado que se llama análisis de clusters
+
+
+
+## Análisis de Clusters o Conglomerados
+
+Para realizar este análisis recurriremos a cargar la biblioteca clusters
+
+En el análisis de conglomerados existen dos formas clásicas de estudio. Ambas recurren a las distancias euclídeas entre las muestras. Tenemos aproximaciones Jerárquicas  y No Jerárquicas 
+AGNES, CLARA, DIANA, MORA, PAM son nombres de las técnicas que la biblioteca Clusters usa. Todas las técnicas se caracterizan por ser un acrónimo de la combinación de aproximaciones que usan (Single Linkage, Complete Linkage, Average Linkage) .
+
+
+Todas tienen nombre de mujer, pero esto no quiere necesariamente decir que se trate de una técnica con complicaciones inesperadas, sino más bien que si quieres lo mejor de una de ellas es mejor que la entiendas e indagues en la página del manual.
+
+```{r}
+library(cluster)
+agp1 = agnes(acp2,method="single")
+agp2 = agnes(acp2,method="complete")
+agp3 = agnes(acp2,method="average")
+
+```
+
+Con la clasificacion terminada procederemos a ver gráficamente el resultado.
+
+```{r}
+par(mfrow=c(2,2))
+plot(acp2)
+plot(agp1)
+plot(agp2)
+plot(agp3)
+```
+
+
+
+
+
+
+Pasa asignar las muestras a grupos usaré el comendo cuttree que me permite valerme de las franjas blancas de corte del los gráficos para armar los clusters
+
+```{r}
+agpcut <- cutree(agp3,3)
+par(mfrow=c(1,1))
+plot(acp2,col=agpcut)
+```
+
+
+### Otros gráficos de agrupamiento
+
+
+Método Clara
+
+```{r}
+plot(clara(consumoE_Rawdata,3))
+```
+
+
+```{r}
+PC1 <- princomp(consumoE_Rawdata)
+PC1
+plot(PC1)
+```
+
+
+```{r}
+boxplot(consumoE_Rawdata)
+```
+
