@@ -1,0 +1,244 @@
+---
+title: "Evaluacion de las Baterias Siemens 1005"
+author: "Roberto Cardozo"
+date: "2024-04-19"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Baterias Siemens
+
+Baterias Siemens 1005| Edad (semanas) | Ensayo de Cortocircuito |
+----------------------|:----:|----------------:|
+1 | 19 | 0
+2 | 18 | 0
+3 | 22 | 0
+4 | 25 | 0
+5 | 17 | 0
+6 | 30 | 0
+7 | 29 | 0
+8 | 32 | 0
+9 | 31 | 0
+10| 33 | 0
+11| 38 | 1
+12| 36 | 0
+13| 40 | 1
+14| 40 | 0
+15| 42 | 1
+16| 45 | 0
+17| 47 | 1
+18| 49 | 0
+19| 55 | 0
+20| 58 | 1
+21| 57 | 1
+22| 63 | 1
+23| 65 | 1
+24| 65 | 1
+25| 66 | 1
+26| 69 | 1
+27| 70 | 1
+28| 71 | 1
+29| 75 | 1
+30| 86 | 1
+31| 79 | 1
+32| 88 | 1
+33| 89 | 0
+34| 92 | 1
+35| 84 | 1
+
+## Tratamiento y captura de la información
+```{r}
+datos_1005 <- c(1, 19 , 0,
+2 , 18 , 0,
+3 , 22 , 0,
+4 ,25 ,0,
+5 , 17 , 0,
+6 , 30 , 0,
+7 , 29 , 0,
+8 ,32 , 0,
+9 ,31 , 0,
+10, 33 , 0,
+11, 38 , 1,
+12, 36 , 0,
+13, 40 , 1,
+14, 40 , 0,
+15, 42 , 1,
+16, 45 , 0,
+17, 47 , 1,
+18, 49 , 0,
+19, 55 , 0,
+20, 58 , 1,
+21, 57 , 1,
+22, 63 , 1,
+23, 65 , 1,
+24, 65 , 1,
+25, 66 , 1,
+26, 69 , 1,
+27, 70 , 1,
+28, 71 , 1,
+29, 75 , 1,
+30, 86 , 1,
+31, 79 , 1,
+32, 88 , 1,
+33, 89 , 0,
+34, 92 , 1,
+35, 84 , 1)
+Muestra_1005 <- matrix(datos_1005, ncol = 3, byrow = TRUE)
+head(Muestra_1005)
+tail(Muestra_1005)
+
+```
+
+## vida de las Baterias
+
+Nos interesa saber si la vida en semanas de nuestras baterias compradas coincide con los valores publicados en el sitio web del fabricantes. Se considera que una batería tiene una vida últil mientras al aplicarle una carga completa ella pueda resistir todo el turno de 8 horas sin necesidad de ser reemplazada.
+```{r}
+plot ((Muestra_1005[ ,2]), main= "Vida en Semanas",xlab="Ficha Taller Batería con falla", ylab= "Semanas")
+
+```
+
+## Promedio de vida
+
+```{r}
+vida_media_muestra <- mean(Muestra_1005[,2])
+vida_media_muestra
+
+
+```
+
+
+## Grafico comparativo 
+
+```{r}
+plot (sort(Muestra_1005[ ,2]), main= "Vida en Semanas",xlab="Batería", ylab= "Semanas")
+abline(h=vida_media_muestra,col="blue")
+abline(h=50,col="red")
+abline(h=60,col="green")
+```
+
+**La línea roja muestra la duración mínima por contrato garantizada por el fabricante. La línea verde indica la duración máxima de la carga e indica si el producto conserva el electrolito original. Se puede extender la duración de la carga con otro electrolíto no original, pero no tendrá garantía del fabricante en caso de fallas.**
+
+
+## Grafico semanas
+
+```{r}
+plot (Muestra_1005[ ,2], main= "Vida en Semanas",xlab="Batería", ylab= "Semanas",type="b",col="red")
+```
+
+
+## HISTOGRAMA DE LA VIDA UTIL
+
+```{r}
+hist(Muestra_1005[,2],breaks = 10)
+
+```
+
+
+
+## Histogramas de Edades
+```{r}
+hist(Muestra_1005[ ,2],breaks = 10, main = "Histogramas de edades")
+```
+
+
+## Grafico de Densidad
+Un gráfico de densidad visualiza la distribución de datos en un intervalo o período de tiempo continuo. Este gráfico es una variación de un Histograma que usa el suavizado de cerner para trazar valores, permitiendo distribuciones más suaves al suavizar el ruido. Los picos de un gráfico de densidad ayudan a mostrar dónde los valores se concentran en el intervalo.
+
+```{r}
+density(Muestra_1005[ ,2])
+```
+## Grafico de Densidad baterias Siemens
+```{r}
+plot(density(Muestra_1005[ ,2]), main = "Gráfico de Densidad", ylab="Cantidad relativa de muestras",xlab="Edad",col ="red")
+```
+
+
+##  Gráfica conjunta de Histograma y Densidad
+
+
+```{r}
+hist(Muestra_1005[ ,2], # histogram
+    breaks = 10,
+     col="peachpuff", # column color
+ border="black",
+ prob = TRUE, # show densities instead of frequencies
+ xlab = "Edad",
+ main = "Distribución Edades de la Muestra")
+lines(density(Muestra_1005[ ,2]), # density plot
+ lwd = 2, # thickness of line
+ col = "chocolate3")
+
+```
+
+## Varianza de Muestra y Población
+
+La varianza de una población está expresada por la ecuación
+
+$$\sigma^2 = \sum_{i=1}^{n} \frac {(x_i – \mu)^2} {N}   $$
+```{r}
+var(Muestra_1005[ ,2])
+```
+Dato que la muestra siempre tiene un número considerablemente menor de individuos que la población la expresión que se usa para calcular la varianza de la muestra es distinta.
+
+## Varianza de la **muestra** es 
+
+$$ s^2 = \sum_{i=1}^{n} \frac {(x_i – \bar{x})^2} {n-1}  $$
+Puede encontrarse la varianza de la población sustituyendo los valores como se indica a continuación:
+
+```{r}
+var_muestra <- var(Muestra_1005 [ ,2])
+var_muestra
+n <- length(Muestra_1005[ ,2])
+n
+n_over_n_1 <- n/(n-1)
+n_over_n_1
+
+```
+
+## Varianza de la poblacion
+
+Con esto valores podemos calcular la varianza de la población con la siguiente codificación
+
+
+$$ \sigma = \frac {S} {n} $$ 
+
+
+```{r}
+var_poblacion <- var(Muestra_1005[ ,2]) / n
+var_poblacion
+```
+
+**desvio estandar de la muestra es**
+
+```{r}
+dsm <- sd({Muestra_1005[ ,2]})
+dsm
+```
+**En tanto que el desvió estándar de la población es**
+
+```{r}
+dsp <- sqrt(var_poblacion)
+dsp
+```
+Una forma más elegante de presentar estos resultados parciales puede conseguirse con el uso de la función ***sprintf()**
+
+
+```{r}
+sprintf("Varianza muestral =%s, Varianza poblacional = %s", var_muestra, var_poblacion )
+```
+
+## el valor que es interesante calcular para comparar con la muestra es el desvío porcentual calculado como 
+
+$dsp_{\%}= \frac{dsp}{n}$
+
+
+```{r}
+dspp_1005 <- dsp/n
+dspp_1005
+```
+
+
+
